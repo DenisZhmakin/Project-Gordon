@@ -1,0 +1,20 @@
+<Project Sdk="Godot.NET.Sdk/4.3.0">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net7.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'ios' ">net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>ProjectGordon</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="materials\grass.tres" />
+    <Content Include="objects\player.tscn" />
+    <Content Include="project.godot" />
+    <Content Include="scenes\main_scene.tscn" />
+    <Content Include="textures\.gitkeep" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="prefabs\" />
+    <Folder Include="scripts\" />
+  </ItemGroup>
+</Project>
