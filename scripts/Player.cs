@@ -5,16 +5,17 @@ namespace ProjectGordon.scripts;
 
 public partial class Player : CharacterBody3D
 {
-    [Export] private float _lookSensitivity = 0.006f;
+    [Export] 
+    private float _lookSensitivity = 0.006f;
 
     private const float WalkSpeed = 5.0f;
     private const float SprintSpeed = 8.0f;
-    private const float JumpVelocity = 4.5f;
+    private const float JumpVelocity = 5f;
 
     private const float HeadbobMoveAmount = 0.06f;
     private const float HeadbobFrequency = 2.4f;
 
-    private float _headbobTime = 0.0f;
+    private float _headbobTime;
     private float _airCap = 0.85f;
     private float _airAccel = 800.0f;
     private float _airMoveSpeed = 500.0f;
@@ -63,12 +64,17 @@ public partial class Player : CharacterBody3D
                 Velocity = new Vector3(Velocity.X, Velocity.Y + JumpVelocity, Velocity.Z);
             }
 
-            HandleGroundPhysics(delta, direction);
+            HandleGroundPhysics(direction);
             HeadbobEffect(delta);
         }
         else
         {
-            HandleAirPhysics(delta, direction);
+            Velocity = new Vector3(
+                Velocity.X, 
+                Velocity.Y - (float)ProjectSettings.GetSetting("physics/3d/default_gravity") * (float)delta, 
+                Velocity.Z
+            );
+            HandleAirAcceleration(delta, direction);
         }
 
         MoveAndSlide();
@@ -87,33 +93,21 @@ public partial class Player : CharacterBody3D
         _firstPersonCamera.Transform = fpCameraTransform;
     }
 
-    private void HandleGroundPhysics(double delta, Vector3 direction)
+    private void HandleGroundPhysics(Vector3 direction)
     {
-        var velocity = Velocity;
-
-        velocity.X = direction.X * GetPlayerSpeed();
-        velocity.Z = direction.Z * GetPlayerSpeed();
-
-        Velocity = velocity;
+        Velocity = new Vector3(
+            direction.X * GetPlayerSpeed(), Velocity.Y, direction.Z * GetPlayerSpeed()
+        );
     }
 
-    private void HandleAirPhysics(double delta, Vector3 direction)
+    private void HandleAirAcceleration(double delta, Vector3 direction)
     {
-        var velocityDeltaY = (float)ProjectSettings.GetSetting("physics/3d/default_gravity") * (float)delta;
-        Velocity = new Vector3(
-            Velocity.X, 
-            Velocity.Y - velocityDeltaY, 
-            Velocity.Z
-        );
-        
-        var currentSpeedWithDirection = Velocity.Dot(direction);
+        var currentSpeed = Velocity.Dot(direction);
         var cappedSpeed = Min((_airMoveSpeed * direction).Length(), _airCap);
-        var addSpeedLimit = cappedSpeed - currentSpeedWithDirection;
-        if (addSpeedLimit > 0)
-        {
-            var accelSpeed = _airAccel * _airMoveSpeed * (float)delta;
-            accelSpeed = Min(accelSpeed, addSpeedLimit);
-            Velocity += direction * accelSpeed; 
-        }
+        var addSpeedLimit = cappedSpeed - currentSpeed;
+        if (addSpeedLimit <= 0) return;
+        var accelSpeed = _airAccel * _airMoveSpeed * (float)delta;
+        accelSpeed = Min(accelSpeed, addSpeedLimit);
+        Velocity += direction * accelSpeed;
     }
 }
