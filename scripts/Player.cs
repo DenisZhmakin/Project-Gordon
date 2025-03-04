@@ -11,8 +11,8 @@ public partial class Player : CharacterBody3D
 
     private const float WalkSpeed = 5.0f;
     private const float SprintSpeed = 8.0f;
-    private const float JumpVelocity = 5f;
-
+    private const float JumpVelocity = 4.5f;
+    
     private const float HeadbobMoveAmount = 0.06f;
     private const float HeadbobFrequency = 2.4f;
 
@@ -20,6 +20,7 @@ public partial class Player : CharacterBody3D
     private float _airCap = 0.85f;
     private float _airAccel = 800.0f;
     private float _airMoveSpeed = 500.0f;
+    
     private Camera3D _firstPersonCamera;
 
     public override void _Ready()
