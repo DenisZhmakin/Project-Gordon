@@ -16,6 +16,7 @@ public partial class Player : CharacterBody3D
     private const float JumpVelocity = 4.5f;
 
     private const float CameraSmoothnessFactor = 5.0f;
+    private const float SpeedIncreasingFactor = 60f;
 
     private const float HeadbobMoveAmount = 0.06f;
     private const float HeadbobFrequency = 2.4f;
@@ -93,7 +94,7 @@ public partial class Player : CharacterBody3D
                 Velocity = new Vector3(Velocity.X, Velocity.Y + JumpVelocity, Velocity.Z);
             }
 
-            HandleGroundPhysics(direction);
+            HandleGroundPhysics(delta, direction);
             HeadbobEffect(delta);
         }
         else
@@ -154,10 +155,13 @@ public partial class Player : CharacterBody3D
         );
     }
 
-    private void HandleGroundPhysics(Vector3 direction)
+    private void HandleGroundPhysics(double delta, Vector3 direction)
     {
+        // Без SpeedIncreasingFactor скорость передвижения очень маленькая.
         Velocity = new Vector3(
-            direction.X * GetPlayerSpeed(), Velocity.Y, direction.Z * GetPlayerSpeed()
+            direction.X * GetPlayerSpeed() * SpeedIncreasingFactor * (float)delta, 
+            Velocity.Y, 
+            direction.Z * GetPlayerSpeed() * SpeedIncreasingFactor * (float)delta
         );
     }
 
