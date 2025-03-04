@@ -7,25 +7,43 @@ public partial class Player : CharacterBody3D
 {
     [Export] private float _lookSensitivity = 0.006f;
 
+    [Export] private float _crouchTranslate = 0.7f;
+
     [Export] private bool _isEnableBunnyHop;
 
     private const float WalkSpeed = 5.0f;
     private const float SprintSpeed = 8.0f;
     private const float JumpVelocity = 4.5f;
-    
+
+    private const float CameraSmoothnessFactor = 5.0f;
+
     private const float HeadbobMoveAmount = 0.06f;
     private const float HeadbobFrequency = 2.4f;
 
+    private bool _isCrouched;
     private float _headbobTime;
+    private float _originalShapeHeight;
+
     private float _airCap = 0.85f;
     private float _airAccel = 800.0f;
     private float _airMoveSpeed = 500.0f;
-    
+
+    private Node3D _cameraContainer;
     private Camera3D _firstPersonCamera;
+    private CollisionShape3D _collisionShape;
 
     public override void _Ready()
     {
-        _firstPersonCamera = GetNode<Camera3D>(GetPath() + "/Head/FirstPersonCamera");
+        _cameraContainer = GetNode<Node3D>(GetPath() + "/Head/CameraContainer");
+        _collisionShape = GetNode<CollisionShape3D>(GetPath() + "/CollisionShape");
+        _firstPersonCamera = GetNode<Camera3D>(GetPath() + "/Head/CameraContainer/FirstPersonCamera");
+
+        if (_collisionShape.Shape == null)
+        {
+            GetTree().Quit();
+        }
+
+        _originalShapeHeight = (_collisionShape.Shape as CapsuleShape3D)!.Height;
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -49,8 +67,13 @@ public partial class Player : CharacterBody3D
         }
     }
 
-    private static float GetPlayerSpeed()
+    private float GetPlayerSpeed()
     {
+        if (_isCrouched)
+        {
+            return WalkSpeed * 0.333f;
+        }
+
         return Input.IsActionPressed("shift") ? SprintSpeed : WalkSpeed;
     }
 
@@ -60,6 +83,8 @@ public partial class Player : CharacterBody3D
             "ui_left", "ui_right", "ui_up", "ui_down"
         ).Normalized();
         var direction = Transform.Basis * new Vector3(inputDirection.X, 0, inputDirection.Y);
+
+        HandleCrouch(delta);
 
         if (IsOnFloor())
         {
@@ -95,6 +120,38 @@ public partial class Player : CharacterBody3D
             0
         );
         _firstPersonCamera.Transform = fpCameraTransform;
+    }
+
+    private void HandleCrouch(double delta)
+    {
+        if (Input.IsActionPressed("_crouch"))
+        {
+            _isCrouched = true;
+        }
+        else if (_isCrouched && !TestMove(Transform, new Vector3(0, _crouchTranslate, 0)))
+        {
+            _isCrouched = false;
+        }
+
+        // Плавное приседание. 
+        _cameraContainer.Position = new Vector3(
+            0,
+            MoveToward(
+                _cameraContainer.Position.Y,
+                _isCrouched ? -_crouchTranslate : 0.0f,
+                (float)delta * CameraSmoothnessFactor
+            ),
+            0
+        );
+
+        var newShapeHeight = _isCrouched ? _originalShapeHeight - _crouchTranslate : _originalShapeHeight;
+        ((CapsuleShape3D)_collisionShape.Shape).Height = newShapeHeight;
+
+        _collisionShape.Position = new Vector3(
+            0,
+            newShapeHeight / 2,
+            0
+        );
     }
 
     private void HandleGroundPhysics(Vector3 direction)

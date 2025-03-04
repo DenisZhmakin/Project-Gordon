@@ -20,7 +20,7 @@ glow_enabled = true
 material = ExtResource("1_t3mbd")
 size = Vector2(128, 128)
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ylk3d"]
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_pw63i"]
 data = PackedVector3Array(64, 0, 64, -64, 0, 64, 64, 0, -64, -64, 0, 64, -64, 0, -64, 64, 0, -64)
 
 [node name="MainScene" type="Node3D"]
@@ -38,6 +38,6 @@ mesh = SubResource("PlaneMesh_ghnlu")
 [node name="StaticBody3D" type="StaticBody3D" parent="Ground"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/StaticBody3D"]
-shape = SubResource("ConcavePolygonShape3D_ylk3d")
+shape = SubResource("ConcavePolygonShape3D_pw63i")
 
 [node name="Player" parent="." instance=ExtResource("1_t4ffj")]
