@@ -5,8 +5,9 @@ namespace ProjectGordon.scripts;
 
 public partial class Player : CharacterBody3D
 {
-    [Export] 
-    private float _lookSensitivity = 0.006f;
+    [Export] private float _lookSensitivity = 0.006f;
+
+    [Export] private bool _isEnableBunnyHop;
 
     private const float WalkSpeed = 5.0f;
     private const float SprintSpeed = 8.0f;
@@ -54,12 +55,14 @@ public partial class Player : CharacterBody3D
 
     public override void _PhysicsProcess(double delta)
     {
-        var inputDirection = Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down").Normalized();
+        var inputDirection = Input.GetVector(
+            "ui_left", "ui_right", "ui_up", "ui_down"
+        ).Normalized();
         var direction = Transform.Basis * new Vector3(inputDirection.X, 0, inputDirection.Y);
 
         if (IsOnFloor())
         {
-            if (Input.IsActionJustPressed("ui_accept"))
+            if (Input.IsActionJustPressed("ui_accept") || (_isEnableBunnyHop && Input.IsActionPressed("ui_accept")))
             {
                 Velocity = new Vector3(Velocity.X, Velocity.Y + JumpVelocity, Velocity.Z);
             }
@@ -70,8 +73,8 @@ public partial class Player : CharacterBody3D
         else
         {
             Velocity = new Vector3(
-                Velocity.X, 
-                Velocity.Y - (float)ProjectSettings.GetSetting("physics/3d/default_gravity") * (float)delta, 
+                Velocity.X,
+                Velocity.Y - (float)ProjectSettings.GetSetting("physics/3d/default_gravity") * (float)delta,
                 Velocity.Z
             );
             HandleAirAcceleration(delta, direction);
