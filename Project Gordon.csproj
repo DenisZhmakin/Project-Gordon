@@ -13,6 +13,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="prefabs\" />
-    <Folder Include="scripts\" />
   </ItemGroup>
 </Project>

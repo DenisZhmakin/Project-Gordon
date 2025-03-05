@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://bp7ichl77yu1k"]
 
-[ext_resource type="Script" uid="uid://d2jlob6jjitth" path="res://scripts/Player.cs" id="1_2767m"]
+[ext_resource type="Script" uid="uid://dukd58gju8pxq" path="res://scripts/Player.cs" id="1_2767m"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_xlnft"]
 
@@ -8,7 +8,6 @@
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_2767m")
-_isEnableBunnyHop = true
 
 [node name="WorldModel" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -24,3 +23,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 [node name="CameraContainer" type="Node3D" parent="Head"]
 
 [node name="FirstPersonCamera" type="Camera3D" parent="Head/CameraContainer"]
+fov = 90.0

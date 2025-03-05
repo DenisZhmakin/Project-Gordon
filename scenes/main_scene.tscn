@@ -29,7 +29,7 @@ data = PackedVector3Array(64, 0, 64, -64, 0, 64, 64, 0, -64, -64, 0, 64, -64, 0,
 environment = SubResource("Environment_swedw")
 
 [node name="SunLight" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.667807, 0.744335, 0, -0.744335, 0.667807, 0, 10.4417, 13.0665)
+transform = Transform3D(1, 0, 0, 0, 0.667807, 0.744335, 0, -0.744335, 0.667807, 0, 3.66413, 13.0665)
 shadow_enabled = true
 
 [node name="Ground" type="MeshInstance3D" parent="."]

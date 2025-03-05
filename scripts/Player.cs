@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using static Godot.Mathf;
 
@@ -7,12 +8,22 @@ public partial class Player : CharacterBody3D
 {
     [Export] private float _lookSensitivity = 0.006f;
 
-    [Export] private float _crouchTranslate = 0.7f;
+    [Export] private float _crouchTranslate = 0.5625f;
 
-    [Export] private bool _isEnableBunnyHop;
+    [ExportGroup("Movement Modifiers")]
+    [Export] 
+    private bool _bunnyHopEnabled;
+    [Export] 
+    private bool _wallWalkingEnabled;
+    
+    [ExportGroup("Speed Values")] 
+    [Export] 
+    private float WalkSpeed { get; set; } = GetVelocityBySpeed(13f);
+    [Export] 
+    private float SprintSpeed { get; set; } = GetVelocityBySpeed(21.9f);
+    [Export] 
+    private float CrouchSpeed { get; set; } = GetVelocityBySpeed(4.3f);
 
-    private const float WalkSpeed = 5.0f;
-    private const float SprintSpeed = 8.0f;
     private const float JumpVelocity = 4.5f;
 
     private const float CameraSmoothnessFactor = 5.0f;
@@ -32,6 +43,11 @@ public partial class Player : CharacterBody3D
     private Node3D _cameraContainer;
     private Camera3D _firstPersonCamera;
     private CollisionShape3D _collisionShape;
+
+    private static float GetVelocityBySpeed(float speed)
+    {
+        return speed / 3.6f;
+    }
 
     public override void _Ready()
     {
@@ -72,7 +88,7 @@ public partial class Player : CharacterBody3D
     {
         if (_isCrouched)
         {
-            return WalkSpeed * 0.333f;
+            return CrouchSpeed;
         }
 
         return Input.IsActionPressed("shift") ? SprintSpeed : WalkSpeed;
@@ -89,7 +105,7 @@ public partial class Player : CharacterBody3D
 
         if (IsOnFloor())
         {
-            if (Input.IsActionJustPressed("ui_accept") || (_isEnableBunnyHop && Input.IsActionPressed("ui_accept")))
+            if (Input.IsActionJustPressed("ui_accept") || (_bunnyHopEnabled && Input.IsActionPressed("ui_accept")))
             {
                 Velocity = new Vector3(Velocity.X, Velocity.Y + JumpVelocity, Velocity.Z);
             }
@@ -159,8 +175,8 @@ public partial class Player : CharacterBody3D
     {
         // Без SpeedIncreasingFactor скорость передвижения очень маленькая.
         Velocity = new Vector3(
-            direction.X * GetPlayerSpeed() * SpeedIncreasingFactor * (float)delta, 
-            Velocity.Y, 
+            direction.X * GetPlayerSpeed() * SpeedIncreasingFactor * (float)delta,
+            Velocity.Y,
             direction.Z * GetPlayerSpeed() * SpeedIncreasingFactor * (float)delta
         );
     }
