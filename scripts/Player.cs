@@ -10,19 +10,14 @@ public partial class Player : CharacterBody3D
 
     [Export] private float _crouchTranslate = 0.5625f;
 
-    [ExportGroup("Movement Modifiers")]
-    [Export] 
+    [ExportGroup("Movement Modifiers")] [Export]
     private bool _bunnyHopEnabled;
-    [Export] 
-    private bool _wallWalkingEnabled;
-    
-    [ExportGroup("Speed Values")] 
-    [Export] 
-    private float WalkSpeed { get; set; } = GetVelocityBySpeed(13f);
-    [Export] 
-    private float SprintSpeed { get; set; } = GetVelocityBySpeed(21.9f);
-    [Export] 
-    private float CrouchSpeed { get; set; } = GetVelocityBySpeed(4.3f);
+
+    [Export] private bool _wallRunningEnabled;
+
+    [ExportGroup("Speed Values")] [Export] private float WalkSpeed { get; set; } = GetVelocityBySpeed(13f);
+    [Export] private float SprintSpeed { get; set; } = GetVelocityBySpeed(21.9f);
+    [Export] private float CrouchSpeed { get; set; } = GetVelocityBySpeed(4.3f);
 
     private const float JumpVelocity = 4.5f;
 
@@ -109,9 +104,13 @@ public partial class Player : CharacterBody3D
             {
                 Velocity = new Vector3(Velocity.X, Velocity.Y + JumpVelocity, Velocity.Z);
             }
-
+            
             HandleGroundPhysics(delta, direction);
             HeadbobEffect(delta);
+        }
+        else if (IsOnWall() && _wallRunningEnabled)
+        {
+            HandleWallRunning(delta, direction);
         }
         else
         {
@@ -137,6 +136,35 @@ public partial class Player : CharacterBody3D
             0
         );
         _firstPersonCamera.Transform = fpCameraTransform;
+    }
+
+    private void HandleWallRunning(double delta, Vector3 direction)
+    {
+        if (Input.IsActionJustPressed("ui_accept"))
+        {
+            Velocity = new Vector3(
+                direction.X * GetPlayerSpeed() * SpeedIncreasingFactor * (float)delta,
+                Velocity.Y + JumpVelocity * 1.25f,
+                direction.Z * GetPlayerSpeed() * SpeedIncreasingFactor * (float)delta
+            );
+        }
+        else if (Input.IsActionPressed("ui_up") && Input.IsActionPressed("ui_accept"))
+        {
+            var wallNormal = GetSlideCollision(0);
+            Velocity = new Vector3(
+                direction.X * GetPlayerSpeed(),
+                0,
+                -wallNormal.GetNormal().Z * GetPlayerSpeed()
+            );
+        }
+        else
+        {
+            Velocity = new Vector3(
+                Velocity.X,
+                Velocity.Y - (float)ProjectSettings.GetSetting("physics/3d/default_gravity") * (float)delta,
+                Velocity.Z
+            );
+        }
     }
 
     private void HandleCrouch(double delta)
