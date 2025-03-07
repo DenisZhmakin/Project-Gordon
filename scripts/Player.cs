@@ -140,7 +140,7 @@ public partial class Player : CharacterBody3D
 
     private void HandleWallRunning(double delta, Vector3 direction)
     {
-        if (Input.IsActionJustPressed("ui_accept"))
+        if (Input.IsActionPressed("ui_up") && Input.IsActionJustPressed("ui_accept"))
         {
             Velocity = new Vector3(
                 direction.X * GetPlayerSpeed() * SpeedIncreasingFactor * (float)delta,
